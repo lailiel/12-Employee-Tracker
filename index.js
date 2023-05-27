@@ -39,7 +39,7 @@ function mainMenu() {
         case "add a role":
           addRole();
           break;
-        case "add a employee":
+        case "add an employee":
           addEmployee();
           break;
         case "update an employee role":
@@ -128,7 +128,6 @@ function addRole() {
         name: "department_id",
         message: "What is the role's department ID?",
       },
-
     ])
     .then((answers) => {
       db.query(
@@ -143,44 +142,112 @@ function addRole() {
     });
 }
 
-
 function addEmployee() {
-    console.log("adding an employee");
-    inquirer
-      .prompt([
-        {
-          type: "input",
-          name: "first_name",
-          message: "What is the employee's first name?",
-        },
-        {
-          type: "input",
-          name: "last_name",
-          message: "What is the employee's last name?",
-        },
-        {
-          type: "input",
-          name: "role_id",
-          message: "What is the employee's role ID?",
-        },
-        {
-          type: "input",
-          name: "manager_id",
-          message: "Who is the employee's manager's ID?",
-        },
-  
-      ])
-      .then((answers) => {
-        db.query(
-          "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);",
-          [answers.first_name, answers.last_name, answers.role_id, answers.manager_id],
-          function (err, results) {
-            if (err) console.log(err);
-            console.log("Employee added!");
-            mainMenu();
-          }
-        );
-      });
-  }
+  console.log("adding an employee");
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "id",
+        message: "What is the employee's ID?",
+      },
+      {
+        type: "input",
+        name: "first_name",
+        message: "What is the employee's first name?",
+      },
+      {
+        type: "input",
+        name: "last_name",
+        message: "What is the employee's last name?",
+      },
+      {
+        type: "input",
+        name: "role_id",
+        message: "What is the employee's role ID?",
+      },
+      {
+        type: "input",
+        name: "manager_id",
+        message: "Who is the employee's manager's ID?",
+      },
+    ])
+    .then((answers) => {
+      db.query(
+        "INSERT INTO employee (id, first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?, ?);",
+        [
+          answers.id,
+          answers.first_name,
+          answers.last_name,
+          answers.role_id,
+          answers.manager_id,
+        ],
+        function (err, results) {
+          if (err) console.log(err);
+          console.log("Employee added!");
+          mainMenu();
+        }
+      );
+    });
+}
+
+function updateRole() {
+  console.log("updating role");
+  const employeeNames = "";
+  db.query("SELECT first_name, last_name FROM employee;").then(
+    (employeeNames = results)
+  );
+
+  inquirer
+    .prompt(
+      {
+        type: "list",
+        name: "update_employee",
+        message: "Which employee's role do you want to update?",
+        choices: [
+          function () {
+            return employeeNames;
+          },
+        ],
+      },
+      {
+        type: "input",
+        name: "id",
+        message: "What is the id of the role?",
+      },
+      {
+        type: "input",
+        name: "title",
+        message: "What is the role title?",
+      },
+      {
+        type: "input",
+        name: "salary",
+        message: "What is the role salary?",
+      },
+      {
+        type: "input",
+        name: "department_id",
+        message: "What is the role's department ID?",
+      }
+    )
+
+    .then((answers) => {
+      db.query(
+        "INSERT INTO role (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);",
+        [
+          answers.first_name,
+          answers.last_name,
+          answers.role_id,
+          answers.manager_id,
+        ],
+        function (err, results) {
+          if (err) console.log(err);
+          console.log("Role Updated!");
+          mainMenu();
+        }
+      );
+    });
+}
 
 mainMenu();
