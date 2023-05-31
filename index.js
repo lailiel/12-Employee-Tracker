@@ -191,22 +191,36 @@ function addEmployee() {
     });
 }
 
-function getEmployeeArray() {
-  const employeeArray = [];
-  db.query(
-    "SELECT first_name, last_name FROM employee;",
-    function (err, results) {
- 
-      if (err) console.log(err);
-      employeeArray.push(results);
+function employeeArrayQuery() {
+  const employeeNames = [];
+  return new Promise((resolve, reject) => {
+    db.query("SELECT concat(first_name, ' ', last_name)as name FROM employee;", function (err, results) {
+      if (err) { 
+        console.log(err);
+        reject(err);
+      } else {
+        resolve(results);
+        employeeNames.push(results)
+        return employeeNames
 
-      return employeeArray;
-    }
-  );
+      }
+    });
+  });
 }
 
+async function getEmployeeArray() {
+  try {
+    const employeeArray = await employeeArrayQuery();
+    console.log(employeeArray);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+
 function updateRole() {
-  const arr = getEmployeeArray()
+  const arr = getEmployeeArray();
 
   inquirer
     .prompt(
@@ -214,7 +228,7 @@ function updateRole() {
         type: "list",
         name: "update_employee",
         message: "Which employee's role do you want to update?",
-        choices: [],
+        choices: [arr],
       },
       {
         type: "input",
