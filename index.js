@@ -191,12 +191,22 @@ function addEmployee() {
     });
 }
 
-function updateRole() {
-  console.log("updating role");
-  const employeeNames = "";
-  db.query("SELECT first_name, last_name FROM employee;").then(
-    (employeeNames = results)
+function getEmployeeArray() {
+  const employeeArray = [];
+  db.query(
+    "SELECT first_name, last_name FROM employee;",
+    function (err, results) {
+ 
+      if (err) console.log(err);
+      employeeArray.push(results);
+
+      return employeeArray;
+    }
   );
+}
+
+function updateRole() {
+  const arr = getEmployeeArray()
 
   inquirer
     .prompt(
@@ -204,43 +214,19 @@ function updateRole() {
         type: "list",
         name: "update_employee",
         message: "Which employee's role do you want to update?",
-        choices: [
-          function () {
-            return employeeNames;
-          },
-        ],
+        choices: [],
       },
       {
         type: "input",
-        name: "id",
-        message: "What is the id of the role?",
-      },
-      {
-        type: "input",
-        name: "title",
-        message: "What is the role title?",
-      },
-      {
-        type: "input",
-        name: "salary",
-        message: "What is the role salary?",
-      },
-      {
-        type: "input",
-        name: "department_id",
-        message: "What is the role's department ID?",
+        name: "role_id",
+        message: "What is the id of the new role?",
       }
     )
 
     .then((answers) => {
       db.query(
-        "INSERT INTO role (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);",
-        [
-          answers.first_name,
-          answers.last_name,
-          answers.role_id,
-          answers.manager_id,
-        ],
+        "UPDATE employee SET role_id = (?) WHERE first_name = (?) AND last_name = (?);",
+        [answers.role_id, answers.first_name, answers.last_name],
         function (err, results) {
           if (err) console.log(err);
           console.log("Role Updated!");
@@ -249,5 +235,15 @@ function updateRole() {
       );
     });
 }
+
+// --------------------- employee by manager
+// function viewByManager() {
+//     console.log("Viewing employees by manager");
+//     db.query("SELECT first_name, last_name FROM employee WHERE manager_id = (?);", function (err, results) {
+//       if (err) console.log(err);
+//       console.table(results);
+//       mainMenu();
+//     });
+//   }
 
 mainMenu();
