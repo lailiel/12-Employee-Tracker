@@ -82,19 +82,14 @@ function addDepartment() {
     .prompt([
       {
         type: "input",
-        name: "id",
-        message: "What is the id of the department?",
-      },
-      {
-        type: "input",
         name: "name",
         message: "What is the name of the department?",
       },
     ])
     .then((answers) => {
       db.query(
-        "INSERT INTO department (id, name) VALUES (?, ?);",
-        [answers.id, answers.name],
+        "INSERT INTO department (name) VALUES (?);",
+        [answers.name],
         function (err, results) {
           if (err) console.log(err);
           console.log("Department added!");
@@ -108,11 +103,6 @@ function addRole() {
   console.log("adding a role");
   inquirer
     .prompt([
-      {
-        type: "input",
-        name: "id",
-        message: "What is the id of the role?",
-      },
       {
         type: "input",
         name: "title",
@@ -131,8 +121,8 @@ function addRole() {
     ])
     .then((answers) => {
       db.query(
-        "INSERT INTO role (id, title, salary, department_id) VALUES (?, ?, ?, ?);",
-        [answers.id, answers.title, answers.salary, answers.department_id],
+        "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);",
+        [answers.title, answers.salary, answers.department_id],
         function (err, results) {
           if (err) console.log(err);
           console.log("Role added!");
@@ -142,15 +132,11 @@ function addRole() {
     });
 }
 
-function addEmployee() {
+async function addEmployee() {
   console.log("adding an employee");
+  const arr = await getEmployeeArray();
   inquirer
     .prompt([
-      {
-        type: "input",
-        name: "id",
-        message: "What is the employee's ID?",
-      },
       {
         type: "input",
         name: "first_name",
@@ -167,16 +153,25 @@ function addEmployee() {
         message: "What is the employee's role ID?",
       },
       {
-        type: "input",
+        type: "list",
         name: "manager_id",
-        message: "Who is the employee's manager's ID?",
+        message: "Who is the employee's manager?",
+        choices: arr,
       },
     ])
     .then((answers) => {
+      const newArr = answers.manager_id.split(" ");
+      const managerID = ""
       db.query(
-        "INSERT INTO employee (id, first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?, ?);",
+        "SELECT id FROM employee WHERE first_name = (?) AND last_name = (?);"
+        [ answers.newArr[0], answers.newArr[1]]
+      )
+      return manager_id = results
+    })
+    .then((answers) => {
+      db.query(
+        "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);",
         [
-          answers.id,
           answers.first_name,
           answers.last_name,
           answers.role_id,
