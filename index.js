@@ -113,11 +113,13 @@ function addRole() {
         name: "salary",
         message: "What is the role salary?",
       },
+      // ------------------update to list of departments vs id number- connect department name to department ID number
       {
         type: "input",
         name: "department_id",
         message: "What is the role's department ID?",
       },
+      // --------------------------
     ])
     .then((answers) => {
       db.query(
@@ -147,11 +149,13 @@ async function addEmployee() {
         name: "last_name",
         message: "What is the employee's last name?",
       },
+      // --------------Need to connect role to role ID and create list of available roles- connect role to role id
       {
         type: "input",
         name: "role_id",
         message: "What is the employee's role ID?",
       },
+      // --------------------------------
       {
         type: "list",
         name: "manager_id",
@@ -159,15 +163,16 @@ async function addEmployee() {
         choices: arr,
       },
     ])
-    .then((answers) => {
-      const newArr = answers.manager_id.split(" ");
-      const managerID = ""
-      db.query(
-        "SELECT id FROM employee WHERE first_name = (?) AND last_name = (?);"
-        [ answers.newArr[0], answers.newArr[1]]
-      )
-      return manager_id = results
-    })
+    // ------------Need to connect managers name to employee ID, reference a reference.
+    // .then((answers) => {
+    //   const newArr = answers.manager_id.split(" ");
+    //   const managerID = ""
+    //   db.query(
+    //     "SELECT id FROM employee WHERE first_name = (?) AND last_name = (?);"
+    //     [ answers.newArr[0], answers.newArr[1]]
+    //   )
+    //   return manager_id = results
+    // })
     .then((answers) => {
       db.query(
         "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);",
@@ -225,6 +230,7 @@ async function updateRole() {
         message: "Which employee's role do you want to update?",
         choices: arr,
       },
+      // -----update this so the department names populate vs entering an ID number
       {
         type: "input",
         name: "role_id",
