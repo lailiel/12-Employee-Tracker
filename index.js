@@ -194,53 +194,55 @@ function addEmployee() {
 function employeeArrayQuery() {
   const employeeNames = [];
   return new Promise((resolve, reject) => {
-    db.query("SELECT concat(first_name, ' ', last_name)as name FROM employee;", function (err, results) {
-      if (err) { 
-        console.log(err);
-        reject(err);
-      } else {
-        resolve(results);
-        employeeNames.push(results)
-        return employeeNames
-
+    db.query(
+      "SELECT concat(first_name, ' ', last_name)as name FROM employee;",
+      function (err, results) {
+        if (err) {
+          console.log(err);
+          reject(err);
+        } else {
+          resolve(results);
+          employeeNames.push(results);
+          return employeeNames;
+        }
       }
-    });
+    );
   });
 }
 
 async function getEmployeeArray() {
   try {
     const employeeArray = await employeeArrayQuery();
-    console.log(employeeArray);
+    return employeeArray;
   } catch (error) {
     console.error(error);
   }
 }
 
-
-
-function updateRole() {
-  const arr = getEmployeeArray();
+async function updateRole() {
+  const arr = await getEmployeeArray();
 
   inquirer
-    .prompt(
+    .prompt([
       {
         type: "list",
         name: "update_employee",
         message: "Which employee's role do you want to update?",
-        choices: [arr],
+        choices: arr,
       },
       {
         type: "input",
         name: "role_id",
         message: "What is the id of the new role?",
-      }
-    )
+      },
+    ])
 
     .then((answers) => {
+      const newArr = answers.update_employee.split(" ");
+
       db.query(
         "UPDATE employee SET role_id = (?) WHERE first_name = (?) AND last_name = (?);",
-        [answers.role_id, answers.first_name, answers.last_name],
+        [answers.role_id, newArr[0], newArr[1]],
         function (err, results) {
           if (err) console.log(err);
           console.log("Role Updated!");
@@ -250,14 +252,6 @@ function updateRole() {
     });
 }
 
-// --------------------- employee by manager
-// function viewByManager() {
-//     console.log("Viewing employees by manager");
-//     db.query("SELECT first_name, last_name FROM employee WHERE manager_id = (?);", function (err, results) {
-//       if (err) console.log(err);
-//       console.table(results);
-//       mainMenu();
-//     });
-//   }
+
 
 mainMenu();
