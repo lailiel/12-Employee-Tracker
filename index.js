@@ -18,6 +18,7 @@ function mainMenu() {
           "add an employee",
           "update an employee's role",
           "update an employee's manager",
+          "view employees by manager",
         ],
       },
     ])
@@ -48,6 +49,9 @@ function mainMenu() {
           break;
         case "update an employee's manager":
           updateManager();
+          break;
+        case "view employees by manager":
+          viewEmployeeByManager();
           break;
       }
     });
@@ -321,4 +325,28 @@ async function updateManager() {
     });
 }
 
+async function viewEmployeeByManager() {
+  const arr = await getEmployeeArray();
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "manager_id",
+        message: "Which manager's employees do you want to view?",
+        choices: arr,
+      },
+    ])
+    .then((answers) => {
+      db.query(
+        "SELECT * FROM employee WHERE manager_id = (?);",
+        [answers.manager_id],
+        function (err, results) {
+          if (err) console.log(err);
+          console.table(results);
+          console.log("Viewing all employees");
+          mainMenu();
+        }
+      );
+    });
+}
 mainMenu();
