@@ -162,7 +162,7 @@ This Challenge is graded based on the following criteria:
 
 Fulfilling any of the following can add up to 20 points to your grade. Note that the highest grade you can achieve is still 100:
 
-* Application allows users to update employee managers (2 points).
+* Application allows users to update employee managers (2 points).---------------
 
 * Application allows users to view employees by manager (2 points).
 

@@ -16,7 +16,8 @@ function mainMenu() {
           "add a department",
           "add a role",
           "add an employee",
-          "update an employee role",
+          "update an employee's role",
+          "update an employee's manager",
         ],
       },
     ])
@@ -42,8 +43,11 @@ function mainMenu() {
         case "add an employee":
           addEmployee();
           break;
-        case "update an employee role":
+        case "update an employee's role":
           updateRole();
+          break;
+        case "update an employee's manager":
+          updateManager();
           break;
       }
     });
@@ -102,7 +106,7 @@ function addDepartment() {
 async function addRole() {
   console.log("adding a role");
   const deptsArr = await getDepartments();
-  
+
   inquirer
     .prompt([
       {
@@ -115,14 +119,13 @@ async function addRole() {
         name: "salary",
         message: "What is the role salary?",
       },
-      
+
       {
         type: "list",
         name: "department_id",
         message: "What department does the role belong to?",
-        choices: deptsArr
+        choices: deptsArr,
       },
-     
     ])
     .then((answers) => {
       db.query(
@@ -153,14 +156,14 @@ async function addEmployee() {
         name: "last_name",
         message: "What is the employee's last name?",
       },
-     
+
       {
         type: "list",
         name: "role_id",
         message: "What is the employee's role?",
         choices: roleArr,
       },
-  
+
       {
         type: "list",
         name: "manager_id",
@@ -171,7 +174,12 @@ async function addEmployee() {
     .then((answers) => {
       db.query(
         "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);",
-        [answers.first_name, answers.last_name, answers.role_id, answers.manager_id],
+        [
+          answers.first_name,
+          answers.last_name,
+          answers.role_id,
+          answers.manager_id,
+        ],
         function (err, results) {
           if (err) console.log(err);
           console.log("Employee added!");
@@ -188,10 +196,12 @@ function getRoles() {
         console.log(err);
         reject(err);
       } else {
-        const roleArray = results.map(row => {
-          return{
-          name: row.title,
-          value: row.id}});
+        const roleArray = results.map((row) => {
+          return {
+            name: row.title,
+            value: row.id,
+          };
+        });
         resolve(roleArray);
       }
     });
@@ -205,10 +215,12 @@ function getDepartments() {
         console.log(err);
         reject(err);
       } else {
-        const deptArray = results.map(row => {
-          return{
-          name: row.name,
-          value: row.id}});
+        const deptArray = results.map((row) => {
+          return {
+            name: row.name,
+            value: row.id,
+          };
+        });
         resolve(deptArray);
       }
     });
@@ -224,10 +236,12 @@ function employeeArrayQuery() {
           console.log(err);
           reject(err);
         } else {
-          const employeeArray = results.map(row => {
-            return{
-            name: row.first_name + " " + row.last_name, 
-            value: row.id}});
+          const employeeArray = results.map((row) => {
+            return {
+              name: row.first_name + " " + row.last_name,
+              value: row.id,
+            };
+          });
           resolve(employeeArray);
         }
       }
@@ -264,14 +278,43 @@ async function updateRole() {
     ])
 
     .then((answers) => {
-      
-
       db.query(
         "UPDATE employee SET role_id = (?) WHERE id = (?);",
         [answers.role_id, answers.update_employee],
         function (err, results) {
           if (err) console.log(err);
           console.log("Role Updated!");
+          mainMenu();
+        }
+      );
+    });
+}
+
+async function updateManager() {
+  const arr = await getEmployeeArray();
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "update_employee",
+        message: "Which employee's manager do you want to update?",
+        choices: arr,
+      },
+      {
+        type: "list",
+        name: "manager_id",
+        message: "Who is the employee's manager?",
+        choices: arr,
+      },
+    ])
+
+    .then((answers) => {
+      db.query(
+        "UPDATE employee SET manager_id = (?) WHERE id = (?);",
+        [answers.manager_id, answers.update_employee],
+        function (err, results) {
+          if (err) console.log(err);
+          console.log("Manager Updated!");
           mainMenu();
         }
       );
