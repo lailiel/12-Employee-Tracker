@@ -99,8 +99,10 @@ function addDepartment() {
     });
 }
 
-function addRole() {
+async function addRole() {
   console.log("adding a role");
+  const deptsArr = await getDepartments();
+  
   inquirer
     .prompt([
       {
@@ -113,13 +115,14 @@ function addRole() {
         name: "salary",
         message: "What is the role salary?",
       },
-      // ------------------update to list of departments vs id number- connect department name to department ID number
+      
       {
-        type: "input",
+        type: "list",
         name: "department_id",
-        message: "What is the role's department ID?",
+        message: "What department does the role belong to?",
+        choices: deptsArr
       },
-      // --------------------------
+     
     ])
     .then((answers) => {
       db.query(
@@ -137,6 +140,7 @@ function addRole() {
 async function addEmployee() {
   console.log("adding an employee");
   const arr = await getEmployeeArray();
+  const roleArr = await getRoles();
   inquirer
     .prompt([
       {
@@ -149,13 +153,14 @@ async function addEmployee() {
         name: "last_name",
         message: "What is the employee's last name?",
       },
-      // --------------Need to connect role to role ID and create list of available roles- connect role to role id
+     
       {
-        type: "input",
+        type: "list",
         name: "role_id",
-        message: "What is the employee's role ID?",
+        message: "What is the employee's role?",
+        choices: roleArr,
       },
-      // --------------------------------
+  
       {
         type: "list",
         name: "manager_id",
@@ -163,25 +168,10 @@ async function addEmployee() {
         choices: arr,
       },
     ])
-    // ------------Need to connect managers name to employee ID, reference a reference.
-    // .then((answers) => {
-    //   const newArr = answers.manager_id.split(" ");
-    //   const managerID = ""
-    //   db.query(
-    //     "SELECT id FROM employee WHERE first_name = (?) AND last_name = (?);"
-    //     [ answers.newArr[0], answers.newArr[1]]
-    //   )
-    //   return manager_id = results
-    // })
     .then((answers) => {
       db.query(
         "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);",
-        [
-          answers.first_name,
-          answers.last_name,
-          answers.role_id,
-          answers.manager_id,
-        ],
+        [answers.first_name, answers.last_name, answers.role_id, answers.manager_id],
         function (err, results) {
           if (err) console.log(err);
           console.log("Employee added!");
@@ -191,19 +181,54 @@ async function addEmployee() {
     });
 }
 
+function getRoles() {
+  return new Promise((resolve, reject) => {
+    db.query("SELECT id, title FROM role", function (err, results) {
+      if (err) {
+        console.log(err);
+        reject(err);
+      } else {
+        const roleArray = results.map(row => {
+          return{
+          name: row.title,
+          value: row.id}});
+        resolve(roleArray);
+      }
+    });
+  });
+}
+
+function getDepartments() {
+  return new Promise((resolve, reject) => {
+    db.query("SELECT id, name FROM department", function (err, results) {
+      if (err) {
+        console.log(err);
+        reject(err);
+      } else {
+        const deptArray = results.map(row => {
+          return{
+          name: row.name,
+          value: row.id}});
+        resolve(deptArray);
+      }
+    });
+  });
+}
+
 function employeeArrayQuery() {
-  const employeeNames = [];
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT concat(first_name, ' ', last_name)as name FROM employee;",
+      "SELECT id, first_name, last_name FROM employee;",
       function (err, results) {
         if (err) {
           console.log(err);
           reject(err);
         } else {
-          resolve(results);
-          employeeNames.push(results);
-          return employeeNames;
+          const employeeArray = results.map(row => {
+            return{
+            name: row.first_name + " " + row.last_name, 
+            value: row.id}});
+          resolve(employeeArray);
         }
       }
     );
@@ -221,7 +246,7 @@ async function getEmployeeArray() {
 
 async function updateRole() {
   const arr = await getEmployeeArray();
-
+  const roleArr = await getRoles();
   inquirer
     .prompt([
       {
@@ -230,20 +255,20 @@ async function updateRole() {
         message: "Which employee's role do you want to update?",
         choices: arr,
       },
-      // -----update this so the department names populate vs entering an ID number
       {
-        type: "input",
+        type: "list",
         name: "role_id",
-        message: "What is the id of the new role?",
+        message: "What is the employee's new role?",
+        choices: roleArr,
       },
     ])
 
     .then((answers) => {
-      const newArr = answers.update_employee.split(" ");
+      
 
       db.query(
-        "UPDATE employee SET role_id = (?) WHERE first_name = (?) AND last_name = (?);",
-        [answers.role_id, newArr[0], newArr[1]],
+        "UPDATE employee SET role_id = (?) WHERE id = (?);",
+        [answers.role_id, answers.update_employee],
         function (err, results) {
           if (err) console.log(err);
           console.log("Role Updated!");
@@ -252,7 +277,5 @@ async function updateRole() {
       );
     });
 }
-
-
 
 mainMenu();
