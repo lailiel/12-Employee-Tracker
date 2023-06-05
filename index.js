@@ -68,7 +68,8 @@ function viewAllDepartments() {
 
 function viewAllRoles() {
   console.log("Viewing all role");
-  db.query("SELECT * FROM role;", function (err, results) {
+  db.query("SELECT role.id, role.title, role.salary, role.department_id, department.name FROM role INNER JOIN department ON department.id=role.department_id", 
+  function (err, results) {
     if (err) console.log(err);
     console.table(results);
     mainMenu();
@@ -77,7 +78,8 @@ function viewAllRoles() {
 
 function viewAllEmployees() {
   console.log("Viewing all employees");
-  db.query("SELECT * FROM employee;", function (err, results) {
+  db.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, CONCAT(manager.first_name, ' ' , manager.last_name) AS manager_name FROM employee INNER JOIN role ON role.id=employee.role_id INNER JOIN department ON department.id=role.department_id LEFT JOIN employee AS manager ON manager.id = employee.manager_id", 
+  function (err, results) {
     if (err) console.log(err);
     console.table(results);
     mainMenu();
@@ -343,10 +345,11 @@ async function viewEmployeeByManager() {
         function (err, results) {
           if (err) console.log(err);
           console.table(results);
-          console.log("Viewing all employees");
+          console.log("Viewing employees or selected manager");
           mainMenu();
         }
       );
     });
 }
+
 mainMenu();

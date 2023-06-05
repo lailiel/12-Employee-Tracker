@@ -164,7 +164,7 @@ Fulfilling any of the following can add up to 20 points to your grade. Note that
 
 * Application allows users to update employee managers (2 points).---------------
 
-* Application allows users to view employees by manager (2 points).
+* Application allows users to view employees by manager (2 points).---------------
 
 * Application allows users to view employees by department (2 points).
 
